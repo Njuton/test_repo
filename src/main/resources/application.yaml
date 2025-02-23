@@ -1,0 +1,42 @@
+server:
+  port: 8888
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5438/mydatabase}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_USERNAME:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    table: schema_history
+
+  jpa:
+    show_sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+
+springdoc:
+  api-docs:
+    # доступ к OpenAPI
+    path: /api-docs
+  swagger-ui:
+    # доступ к swagger
+    path: /swagger-ui.html
+
+logging:
+  level:
+    root: INFO  # Общий уровень логирования (DEBUG, INFO, WARN, ERROR, OFF)
+    org.springframework: WARN  # Логирование Spring (уменьшить лишние логи)
+    org.hibernate.SQL: DEBUG  # Показывать SQL-запросы
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Показывать параметры SQL-запросов
+  file:
+    name: logs/app.log  # Запись логов в файл
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n"
