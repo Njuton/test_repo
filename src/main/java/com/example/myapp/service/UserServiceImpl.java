@@ -6,6 +6,7 @@ import com.example.myapp.exception.UserAlreadyExistsException;
 import com.example.myapp.exception.UserNotFoundException;
 import com.example.myapp.service.dto.RegisterRequest;
 import com.example.myapp.service.dto.UserDto;
+import jakarta.annotation.Nullable;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -69,6 +70,21 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getAllUsers() {
         return userDao.findAll()
                 .stream()
+                .map(user -> new UserDto(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getBirthdate(),
+                        user.getBiography(),
+                        user.getCity()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserDto> search(@Nullable String firstNamePrefix, @Nullable String lastNamePrefix) {
+        return userDao.search(firstNamePrefix, lastNamePrefix).stream()
                 .map(user -> new UserDto(
                         user.getId(),
                         user.getUsername(),

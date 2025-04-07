@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
  * @author rmartynov
  * @since 14.01.2025
  */
-@PropertySource(value = "classpath:app-default.yaml", factory = YamlPropertySourceFactory.class)
 @PropertySource(value = "file:${user.dir}/app.yaml", factory = YamlPropertySourceFactory.class, ignoreResourceNotFound = true)
 @SpringBootApplication
 public class MyappApplication {

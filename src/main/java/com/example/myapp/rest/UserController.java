@@ -46,4 +46,11 @@ public class UserController implements UserApi {
     public List<UserDto> getAllUsers() {
         return txRunner.runInTransaction(userService::getAllUsers, TxMode.READ_ONLY);
     }
+
+    @GetMapping("/search")
+    public List<UserDto> searchUsers(
+            @RequestParam String firstNamePrefix,
+            @RequestParam String lastNamePrefix) {
+        return txRunner.runInTransaction(() -> userService.search(firstNamePrefix, lastNamePrefix), TxMode.READ_ONLY);
+    }
 }

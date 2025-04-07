@@ -50,4 +50,9 @@ public class UserDao {
         String sql = "SELECT * FROM users";
         return jdbcTemplate.query(sql, new UserRowMapper());
     }
+
+    public List<User> search(String firstNamePrefix, String lastNamePrefix) {
+        String sql = "SELECT * FROM users AS u WHERE u.first_name LIKE ? AND u.last_name LIKE ? ORDER BY u.id ASC";
+        return jdbcTemplate.query(sql, new UserRowMapper(), firstNamePrefix + "%", lastNamePrefix + "%");
+    }
 }

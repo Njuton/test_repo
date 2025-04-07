@@ -10,10 +10,10 @@ from faker import Faker
 
 CSV_FILE = sys.argv[1]
 PASSWORD = "securepassword123"  # Дефолтный пароль один на всех
-NUM_RECORDS = 1_000_000
+NUM_RECORDS = 500_000
 
 # Генерация bcrypt-хеша пароля
-hashed_password = bcrypt.hashpw(PASSWORD.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+hashed_password = bcrypt.hashpw(PASSWORD.encode('utf-8'), bcrypt.gensalt(prefix=b"2a")).decode('utf-8')
 
 fake = Faker('ru_RU')  # Используем русскую локализацию
 

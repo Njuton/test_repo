@@ -9,3 +9,4 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL UNIQUE
 );
 
+ALTER TABLE users ALTER COLUMN id SET DEFAULT gen_random_uuid();

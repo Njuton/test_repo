@@ -3,6 +3,7 @@ package com.example.myapp.rest;
 import com.example.myapp.service.dto.RegisterRequest;
 import com.example.myapp.service.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,4 +47,19 @@ public interface UserApi {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     List<UserDto> getAllUsers();
+
+    @GetMapping("/search")
+    @Operation(
+            summary = "Search users",
+            description = "Searches for users whose first and last names start with the given prefixes"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Input data validation failed"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    List<UserDto> searchUsers(
+            @RequestParam @Parameter(description = "Prefix of the first name") String firstNamePrefix,
+            @RequestParam @Parameter(description = "Prefix of the last name") String lastNamePrefix
+    );
 }

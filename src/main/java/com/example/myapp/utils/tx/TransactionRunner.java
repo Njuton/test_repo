@@ -1,5 +1,7 @@
 package com.example.myapp.utils.tx;
 
+import com.example.myapp.config.TransactionContextHolder;
+import com.example.myapp.config.TransactionContextHolder.TransactionType;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -26,7 +28,12 @@ public class TransactionRunner {
      */
     public void runInTransaction(Runnable action, TxMode mode) {
         configureTransactionTemplate(mode);
-        transactionTemplate.executeWithoutResult(status -> action.run());
+        try {
+            TransactionContextHolder.setTransactionType(determineTransactionType(mode));
+            transactionTemplate.executeWithoutResult(status -> action.run());
+        } finally {
+            TransactionContextHolder.clear();
+        }
     }
 
     /**
@@ -39,7 +46,16 @@ public class TransactionRunner {
      */
     public <T> T runInTransaction(Supplier<T> action, TxMode mode) {
         configureTransactionTemplate(mode);
-        return transactionTemplate.execute(status -> action.get());
+        try {
+            TransactionContextHolder.setTransactionType(determineTransactionType(mode));
+            return transactionTemplate.execute(status -> action.get());
+        } finally {
+            TransactionContextHolder.clear();
+        }
+    }
+
+    private static TransactionType determineTransactionType(TxMode mode) {
+        return mode.isReadOnly() ? TransactionType.READ_ONLY : TransactionType.READ_WRITE;
     }
 
     private void configureTransactionTemplate(TxMode mode) {

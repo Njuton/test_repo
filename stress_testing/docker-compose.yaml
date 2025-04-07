@@ -32,3 +32,4 @@ services:
 volumes:
   influxdb2_data:
   grafana_data:
+

@@ -16,4 +16,6 @@ public interface UserService {
     UserDto getUserById(UUID id);
 
     List<UserDto> getAllUsers();
+
+    List<UserDto> search(String firstName, String lastName);
 }
