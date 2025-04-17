@@ -1,5 +1,7 @@
 package com.example.myapp.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -7,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +19,8 @@ import java.util.Map;
  */
 @Configuration
 public class DataSourceConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
 
     @Bean
     @ConfigurationProperties("spring.datasource.read-only")
@@ -39,7 +44,7 @@ public class DataSourceConfig {
     }
 
     @Bean
-    public DataSource routingDataSource() {
+    public DataSource routingDataSource() throws SQLException {
         AbstractRoutingDataSource dataSource = new TransactionRoutingDataSource();
         Map<Object, Object> targetDataSources = new HashMap<>();
 
@@ -47,9 +52,11 @@ public class DataSourceConfig {
         DataSource readWriteDataSource = getReadWriteDataSource();
 
         if (readOnlyDataSource != null) {
+            logger.info("Use read-only datasource: {}", readOnlyDataSource.getConnection().getMetaData().getURL());
             targetDataSources.put(TransactionContextHolder.TransactionType.READ_ONLY, readOnlyDataSource);
         }
 
+        logger.info("Use write datasource: {}", readWriteDataSource.getConnection().getMetaData().getURL());
         targetDataSources.put(TransactionContextHolder.TransactionType.READ_WRITE, readWriteDataSource);
         dataSource.setTargetDataSources(targetDataSources);
         dataSource.setDefaultTargetDataSource(readWriteDataSource);

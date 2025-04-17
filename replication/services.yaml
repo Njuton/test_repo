@@ -1,0 +1,49 @@
+version: '3.8'
+
+# Для возможности использования "network-mode=host" в Docker-Desktop необходимо включать галку
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    network_mode: "host"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    expose:
+      - 9090
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: adminpassword
+    network_mode: "host"
+    expose:
+      - 3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.52.1
+    container_name: cadvisor
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /var/run:/var/run:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro
+    restart: unless-stopped
+    ports:
+      - "7777:8080"
+
+
+volumes:
+  grafana_data:
+  prometheus_data:

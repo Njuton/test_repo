@@ -11,6 +11,22 @@ CREATE TABLE users (
 
 ALTER TABLE users ALTER COLUMN id SET DEFAULT gen_random_uuid();
 
+CREATE TABLE public.schema_history (
+    installed_rank integer NOT NULL PRIMARY KEY,
+    version character varying(50),
+    description character varying(200) NOT NULL,
+    type character varying(20) NOT NULL,
+    script character varying(1000) NOT NULL,
+    checksum integer,
+    installed_by character varying(100) NOT NULL,
+    installed_on timestamp without time zone DEFAULT now() NOT NULL,
+    execution_time integer NOT NULL,
+    success boolean NOT NULL
+);
+
+INSERT INTO public.schema_history (installed_rank, version, description, type, script, checksum, installed_by, installed_on, execution_time, success)
+VALUES (1, '1', 'init schema', 'SQL', 'V1__init_schema.sql', 1317146632, 'postgres', NOW(), 7, true);
+
 INSERT INTO users (first_name, last_name, birthdate, city, biography, password, username) VALUES
 ('Авдеевич', 'Вацлав', '1999-07-24', 'инстанс-1 с. Красноселькуп', 'танцы', '$2a$12$qNhq8hs4/.HSJ1hilMbLAOwMaaDCI0lXq7QfbpBf.COnTG5fVjF6e', '2oCB2hFrGxg3a2n');
 
