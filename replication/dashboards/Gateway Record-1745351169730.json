@@ -1,0 +1,356 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 7,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "aegu2dzm6fdhca"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": ""
+            },
+            "properties": []
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "aegu2dzm6fdhca"
+          },
+          "query": "from(bucket: \"jmeter\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"requestName\"] == \"Search\" )\n  |> filter(fn: (r) => r._measurement == \"requestsRaw\" and r.responseCode == \"200\" and r._field == \"latency\")\n  |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> map(fn: (r) => ({ r with Search: r._value }))\n  |> drop(columns: [\"_value\"])\n  |> yield(name: \"Mean Latency\")",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "aegu2dzm6fdhca"
+          },
+          "hide": false,
+          "query": "from(bucket: \"jmeter\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"requestName\"] == \"GetUser\" )\n  |> filter(fn: (r) => r._measurement == \"requestsRaw\" and r.responseCode == \"200\" and r._field == \"latency\")\n  |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)\n  |> keep(columns: [\"_time\", \"_value\"])\n  |> map(fn: (r) => ({ r with GetUser: r._value }))\n  |> drop(columns: [\"_value\"])\n  |> yield(name: \"Mean Latency\")",
+          "refId": "B"
+        }
+      ],
+      "title": "Latency (ms)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "aegu2dzm6fdhca"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "aegu2dzm6fdhca"
+          },
+          "query": "from(bucket: \"jmeter\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"requestName\"] == \"Search\"  )\n  |> filter(fn: (r) => r._measurement == \"requestsRaw\" and r.responseCode == \"200\" and r._field == \"latency\")\n  |> aggregateWindow(every: 1s, fn: count, createEmpty: false)\n  |> map(fn: (r) => ({ r with Search: r._value }))\n  |> drop(columns: [\"_value\"])\n  |> keep(columns: [\"_time\", \"Search\"])\n  ",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "aegu2dzm6fdhca"
+          },
+          "hide": false,
+          "query": "from(bucket: \"jmeter\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"requestName\"] == \"GetUser\"  )\n  |> filter(fn: (r) => r._measurement == \"requestsRaw\" and r.responseCode == \"200\" and r._field == \"latency\")\n  |> aggregateWindow(every: 1s, fn: count, createEmpty: false)\n  |> map(fn: (r) => ({ r with GetUser: r._value }))\n  |> drop(columns: [\"_value\"])\n  |> keep(columns: [\"_time\", \"GetUser\"])\n  ",
+          "refId": "B"
+        }
+      ],
+      "title": "Throughput (RPS)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "aegu2dzm6fdhca"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.5.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "eedxyyzqg3gu8c"
+          },
+          "hide": false,
+          "query": "from(bucket: \"jmeter\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"requestName\"] == \"Search\"  )\n  |> filter(fn: (r) => r._measurement == \"requestsRaw\" and r.responseCode != \"200\" and r._field == \"latency\")\n  |> aggregateWindow(every: 1s, fn: count, createEmpty: true)\n  |> map(fn: (r) => ({ r with Search: r._value }))\n  |> drop(columns: [\"_value\"])\n  |> keep(columns: [\"_time\", \"Search\"])\n  ",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "aegu2dzm6fdhca"
+          },
+          "hide": false,
+          "query": "from(bucket: \"jmeter\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"requestName\"] == \"GetUser\"  )\n  |> filter(fn: (r) => r._measurement == \"requestsRaw\" and r.responseCode != \"200\" and r._field == \"latency\")\n  |> aggregateWindow(every: 1s, fn: count, createEmpty: true)\n  |> map(fn: (r) => ({ r with GetUser: r._value }))\n  |> drop(columns: [\"_value\"])\n  |> keep(columns: [\"_time\", \"GetUser\"])\n  ",
+          "refId": "A"
+        }
+      ],
+      "title": "Error count",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 40,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "2025-04-21T16:59:10.160Z",
+    "to": "2025-04-21T17:01:28.915Z"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Gateway Record",
+  "uid": "fejmc2bzrlds0d",
+  "version": 1,
+  "weekStart": ""
+}

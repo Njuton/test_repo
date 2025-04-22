@@ -3,16 +3,21 @@ server:
 
 spring:
   datasource:
-    # датасорс необязателен (если указан, то на нём выполняются только read-only транзакции)
+    # массив датасорсов необязателен (если указан, то на нём выполняются только read-only транзакции)
+    # причём нагрузка будет распределяться рандомно на любой из указанных датасорсов
     read-only:
-      url: ${SPRING_READ_ONLY_DATASOURCE_URL:jdbc:postgresql://localhost:5438/mydatabase}
-      username: ${SPRING_READ_ONLY_DATASOURCE_USERNAME:postgres}
-      password: ${SPRING_READ_ONLY_DATASOURCE_PASSWORD:postgres}
-      driver-class-name: org.postgresql.Driver
+      - url: ${SPRING_READ_ONLY_DATASOURCE_URL:jdbc:postgresql://localhost:6531/mydatabase}
+        username: ${SPRING_READ_ONLY_DATASOURCE_USERNAME:postgres}
+        password: ${SPRING_READ_ONLY_DATASOURCE_PASSWORD:postgres}
+        driverClassName: org.postgresql.Driver
+      # - url: jdbc:postgresql://localhost:6532/mydatabase
+      #  username: ${SPRING_READ_ONLY_DATASOURCE_USERNAME:postgres}
+      #  password: ${SPRING_READ_ONLY_DATASOURCE_PASSWORD:postgres}
+      #  driverClassName: org.postgresql.Driver
 
-    # дефолтный датасорс (если указан read-only, то на read-write только write транзакции, иначе все)
+    # обязательный датасорс (если указан read-only, то на read-write только write транзакции, иначе все)
     read-write:
-      url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5438/mydatabase}
+      url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:6530/mydatabase}
       username: ${SPRING_DATASOURCE_USERNAME:postgres}
       password: ${SPRING_DATASOURCE_PASSWORD:postgres}
       driver-class-name: org.postgresql.Driver

@@ -4,13 +4,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,9 +22,15 @@ import java.util.Map;
  * @since 27.03.2025
  */
 @Configuration
+@EnableConfigurationProperties(ReadOnlyProperties.class)
 public class DataSourceConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(DataSourceConfig.class);
+    private final ReadOnlyKeyRegistry readOnlyKeyRegistry;
+
+    public DataSourceConfig(ReadOnlyKeyRegistry readOnlyKeyRegistry) {
+        this.readOnlyKeyRegistry = readOnlyKeyRegistry;
+    }
 
     @Bean
     @ConfigurationProperties("spring.datasource.read-only")
@@ -34,9 +44,18 @@ public class DataSourceConfig {
         return new DataSourceProperties();
     }
 
-    private DataSource getReadOnlyDataSource() {
-        DataSourceProperties properties = readOnlyDataSourceProperties();
-        return properties.getUrl() != null ? properties.initializeDataSourceBuilder().build() : null;
+    @Bean
+    public List<DataSource> readOnlyDataSources(ReadOnlyProperties properties) {
+        List<DataSource> dataSources = new ArrayList<>();
+        for (ReadOnlyProperties.ReadOnlyDataSourceProperty property : properties.getReadOnly()) {
+            DriverManagerDataSource dataSource = new DriverManagerDataSource();
+            dataSource.setUrl(property.getUrl());
+            dataSource.setUsername(property.getUsername());
+            dataSource.setPassword(property.getPassword());
+            dataSource.setDriverClassName(property.getDriverClassName());
+            dataSources.add(dataSource);
+        }
+        return dataSources;
     }
 
     private DataSource getReadWriteDataSource() {
@@ -44,16 +63,21 @@ public class DataSourceConfig {
     }
 
     @Bean
-    public DataSource routingDataSource() throws SQLException {
-        AbstractRoutingDataSource dataSource = new TransactionRoutingDataSource();
+    public DataSource routingDataSource(List<DataSource> readOnlyDataSources) throws SQLException {
+        AbstractRoutingDataSource dataSource = new TransactionRoutingDataSource(readOnlyKeyRegistry);
         Map<Object, Object> targetDataSources = new HashMap<>();
 
-        DataSource readOnlyDataSource = getReadOnlyDataSource();
         DataSource readWriteDataSource = getReadWriteDataSource();
 
-        if (readOnlyDataSource != null) {
-            logger.info("Use read-only datasource: {}", readOnlyDataSource.getConnection().getMetaData().getURL());
-            targetDataSources.put(TransactionContextHolder.TransactionType.READ_ONLY, readOnlyDataSource);
+        if (!readOnlyDataSources.isEmpty()) {
+            int i = 0;
+            for (DataSource rds : readOnlyDataSources) {
+                logger.info("Use read-only datasource: {}", rds.getConnection().getMetaData().getURL());
+                String genKey = TransactionContextHolder.TransactionType.READ_ONLY.name() + i;
+                readOnlyKeyRegistry.addKey(genKey);
+                targetDataSources.put(genKey, rds);
+                i++;
+            }
         }
 
         logger.info("Use write datasource: {}", readWriteDataSource.getConnection().getMetaData().getURL());

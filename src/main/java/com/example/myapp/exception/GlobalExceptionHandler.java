@@ -17,6 +17,12 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final ExceptionCounter exceptionCounter;
+
+    public GlobalExceptionHandler(ExceptionCounter exceptionCounter) {
+        this.exceptionCounter = exceptionCounter;
+    }
+
     // Обработка ошибок валидации (400)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -42,6 +48,8 @@ public class GlobalExceptionHandler {
     // Обработка остальных ошибок (500)
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneralException(Exception ex) {
+        // подсчёт ошибок транзакций
+        exceptionCounter.increment();
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 }

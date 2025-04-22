@@ -3,7 +3,7 @@
 source ./venv/bin/activate
 
 # дефолтные значения докер-композа
-CONTAINER_NAME="pgmaster"
+CONTAINER_NAME="postgres_container"
 DB_NAME="mydatabase"
 DB_USER="postgres"
 TABLE_NAME="users"

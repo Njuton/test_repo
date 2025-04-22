@@ -5,10 +5,12 @@
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group">
-        <intProp name="ThreadGroup.num_threads">5</intProp>
+        <intProp name="ThreadGroup.num_threads">1000</intProp>
         <longProp name="ThreadGroup.duration">60</longProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
@@ -19,7 +21,7 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Sampler" enabled="false">
+        <JSR223Sampler guiclass="TestBeanGUI" testclass="JSR223Sampler" testname="JSR223 Sampler">
           <stringProp name="cacheKey">true</stringProp>
           <stringProp name="filename"></stringProp>
           <stringProp name="parameters"></stringProp>
@@ -38,7 +40,7 @@ vars.put(&apos;lastNamePrefix&apos;, lastNamePrefixes[lastNameIndex])</stringPro
           <stringProp name="scriptLanguage">groovy</stringProp>
         </JSR223Sampler>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Search" enabled="false">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Search">
           <stringProp name="HTTPSampler.domain">localhost</stringProp>
           <stringProp name="HTTPSampler.port">8888</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -67,7 +69,7 @@ vars.put(&apos;lastNamePrefix&apos;, lastNamePrefixes[lastNameIndex])</stringPro
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor" enabled="true">
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="JSON Extractor">
             <stringProp name="JSONPostProcessor.referenceNames">userIdVar</stringProp>
             <stringProp name="JSONPostProcessor.jsonPathExprs">$[0].id</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
@@ -75,7 +77,7 @@ vars.put(&apos;lastNamePrefix&apos;, lastNamePrefixes[lastNameIndex])</stringPro
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GetUser" enabled="false">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="GetUser">
           <stringProp name="HTTPSampler.domain">localhost</stringProp>
           <stringProp name="HTTPSampler.port">8888</stringProp>
           <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -89,47 +91,8 @@ vars.put(&apos;lastNamePrefix&apos;, lastNamePrefixes[lastNameIndex])</stringPro
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Register">
-          <stringProp name="HTTPSampler.domain">localhost</stringProp>
-          <stringProp name="HTTPSampler.port">8888</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
-          <stringProp name="HTTPSampler.path">/user/register</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&#xd;
-  &quot;username&quot;: &quot;r${__RandomString(10,abcdefghijklmnopqrstuvwxyz0123456789)}&quot;,&#xd;
-  &quot;firstName&quot;: &quot;ivan&quot;,&#xd;
-  &quot;lastName&quot;: &quot;ivanov&quot;,&#xd;
-  &quot;birthdate&quot;: &quot;1990-01-01&quot;,&#xd;
-  &quot;biography&quot;: &quot;love programming&quot;,&#xd;
-  &quot;city&quot;: &quot;Moscow&quot;,&#xd;
-  &quot;password&quot;: &quot;securepassword123&quot;&#xd;
-}&#xd;
-</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
-            <collectionProp name="HeaderManager.headers">
-              <elementProp name="" elementType="Header">
-                <stringProp name="Header.name">content-type</stringProp>
-                <stringProp name="Header.value">application/json</stringProp>
-              </elementProp>
-            </collectionProp>
-          </HeaderManager>
-          <hashTree/>
-        </hashTree>
       </hashTree>
-      <ResultCollector guiclass="StatGraphVisualizer" testclass="ResultCollector" testname="Aggregate Graph" enabled="false">
+      <ResultCollector guiclass="StatGraphVisualizer" testclass="ResultCollector" testname="Aggregate Graph">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
@@ -166,7 +129,7 @@ vars.put(&apos;lastNamePrefix&apos;, lastNamePrefixes[lastNameIndex])</stringPro
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
-      <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results" enabled="false">
+      <ResultCollector guiclass="GraphVisualizer" testclass="ResultCollector" testname="Graph Results">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
@@ -240,7 +203,7 @@ vars.put(&apos;lastNamePrefix&apos;, lastNamePrefixes[lastNameIndex])</stringPro
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
-      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="false">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
@@ -303,7 +266,7 @@ vars.put(&apos;lastNamePrefix&apos;, lastNamePrefixes[lastNameIndex])</stringPro
             </elementProp>
             <elementProp name="influxDBToken" elementType="Argument">
               <stringProp name="Argument.name">influxDBToken</stringProp>
-              <stringProp name="Argument.value">ZHhWE2fNqGC9Mna8Dymf5pFZ8mvL-MwwBJRzUZFU4bUA8CNG_VhGK2WfXihZdZpdXQ8_5AJSYhDsDZLWp4Ekag==</stringProp>
+              <stringProp name="Argument.value">yRiJdErLf-MJPg6qjDANsr6mo8Jjp8G9mqqjKX6DNfZQ70NCWFQ8UCb4Ps6eGoQAWIVmAdEo_hwPr5xvB-_7Tw==</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="influxDBOrganization" elementType="Argument">
