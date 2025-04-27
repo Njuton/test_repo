@@ -3,6 +3,8 @@ package com.example.myapp.dao.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -36,6 +38,22 @@ public class User {
 
     @Column
     private String password;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_user_friends_user")),
+            inverseJoinColumns = @JoinColumn(name = "friend_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_user_friends_friend"))
+    )
+    private Set<User> friends = new HashSet<>();
+
+    public Set<User> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(Set<User> friends) {
+        this.friends = friends;
+    }
 
     public UUID getId() {
         return id;

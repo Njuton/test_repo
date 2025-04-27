@@ -50,3 +50,9 @@ logging:
     org.springframework: WARN
     org.hibernate.SQL: DEBUG
     org.springframework.jdbc.core.JdbcTemplate: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

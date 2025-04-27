@@ -1,5 +1,6 @@
 package com.example.myapp.service;
 
+import com.example.myapp.dao.FriendDao;
 import com.example.myapp.dao.UserDao;
 import com.example.myapp.dao.entity.User;
 import com.example.myapp.exception.UserAlreadyExistsException;
@@ -22,9 +23,11 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final FriendDao friendDao;
 
-    public UserServiceImpl(UserDao userDao) {
+    public UserServiceImpl(UserDao userDao, FriendDao friendDao) {
         this.userDao = userDao;
+        this.friendDao = friendDao;
     }
 
     @Override
@@ -85,6 +88,37 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> search(@Nullable String firstNamePrefix, @Nullable String lastNamePrefix) {
         return userDao.search(firstNamePrefix, lastNamePrefix).stream()
+                .map(user -> new UserDto(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getBirthdate(),
+                        user.getBiography(),
+                        user.getCity()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addFriend(UUID userId, UUID friendId) {
+        if (friendDao.isFriend(userId, friendId)) {
+            throw new RuntimeException("Users are already friends");
+        }
+        friendDao.addFriend(userId, friendId);
+    }
+
+    @Override
+    public void removeFriend(UUID userId, UUID friendId) {
+        if (!friendDao.isFriend(userId, friendId)) {
+            throw new RuntimeException("Users are not friends");
+        }
+        friendDao.removeFriend(userId, friendId);
+    }
+
+    @Override
+    public List<UserDto> getFriends(UUID userId) {
+        return friendDao.getFriends(userId).stream()
                 .map(user -> new UserDto(
                         user.getId(),
                         user.getUsername(),

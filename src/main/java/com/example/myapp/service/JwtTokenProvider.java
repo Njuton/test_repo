@@ -1,17 +1,15 @@
 package com.example.myapp.service;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -34,11 +32,19 @@ public class JwtTokenProvider {
 
     public String generateToken(UUID userId, String username) {
         return Jwts.builder()
-                .setClaims(Map.of("username", username)) // Добавляем данные в payload
-                .setSubject(userId.toString()) // Уникальный идентификатор пользователя
-                .setIssuedAt(new Date()) // Время создания токена
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs)) // Время истечения токена
-                .signWith(SignatureAlgorithm.HS512, jwtSecret) // Подпись токена
+                .setClaims(Map.of("userId", userId))
+                .setSubject(userId.toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)))
                 .compact();
+    }
+
+    public Claims parseToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

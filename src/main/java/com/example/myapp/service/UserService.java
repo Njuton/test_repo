@@ -2,6 +2,7 @@ package com.example.myapp.service;
 
 import com.example.myapp.service.dto.RegisterRequest;
 import com.example.myapp.service.dto.UserDto;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,4 +19,10 @@ public interface UserService {
     List<UserDto> getAllUsers();
 
     List<UserDto> search(String firstName, String lastName);
+
+    void addFriend(UUID userId, UUID friendId);
+
+    void removeFriend(UUID userId, UUID friendId);
+
+    List<UserDto> getFriends(UUID userId);
 }

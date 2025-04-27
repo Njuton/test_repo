@@ -1,5 +1,8 @@
 package com.example.myapp.exception;
 
+import com.example.myapp.security.JwtAuthenticationFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.validation.FieldError;
@@ -18,6 +21,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     private final ExceptionCounter exceptionCounter;
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     public GlobalExceptionHandler(ExceptionCounter exceptionCounter) {
         this.exceptionCounter = exceptionCounter;
@@ -30,18 +34,21 @@ public class GlobalExceptionHandler {
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.put(error.getField(), error.getDefaultMessage());
         }
+        logger.error(ex.getMessage(), ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errors.toString());
     }
 
     // Обработка ошибок конфликтов (409)
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ProblemDetail handleIllegalArgumentException(UserAlreadyExistsException ex) {
+        logger.error(ex.getMessage(), ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
     }
 
     // Обработка ошибок отсутствия объектов (404)
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleNotFoundException(UserNotFoundException ex) {
+        logger.error(ex.getMessage(), ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
@@ -50,6 +57,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleGeneralException(Exception ex) {
         // подсчёт ошибок транзакций
         exceptionCounter.increment();
+        logger.error(ex.getMessage(), ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 }
