@@ -27,3 +27,15 @@ create table posts (
     primary key (id));
 
 alter table posts add constraint fk_post_user foreign key (user_id) references users;
+
+-- Шардируемая таблица сообщений
+create table messages
+    (sender_id uuid not null,
+    id uuid not null,
+    created_at timestamp(6) not null,
+    receiver_id uuid not null,
+    text varchar(65535) not null,
+    primary key (id, sender_id));
+
+-- Создание индекса для ускорения запросов
+CREATE INDEX idx_receiver_id ON messages(receiver_id);

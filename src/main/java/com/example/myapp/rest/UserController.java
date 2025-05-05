@@ -31,7 +31,7 @@ public class UserController implements UserApi {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@Valid @RequestBody RegisterRequest request) {
-        UUID userId = txRunner.runInTransaction(() -> userService.registerUser(request), TxMode.CURRENT_OR_NEW);
+        UUID userId = txRunner.runInTransaction(() -> userService.registerUser(request), TxMode.CURRENT_OR_NEW, null);
         Map<String, String> response = new HashMap<>();
         response.put("user_id", userId.toString());
         return ResponseEntity.ok(response);
@@ -39,18 +39,18 @@ public class UserController implements UserApi {
 
     @GetMapping("/get/{id}")
     public UserDto getUserById(@PathVariable UUID id) {
-        return txRunner.runInTransaction(() -> userService.getUserById(id), TxMode.READ_ONLY);
+        return txRunner.runInTransaction(() -> userService.getUserById(id), TxMode.READ_ONLY, null);
     }
 
     @GetMapping("/get-all")
     public List<UserDto> getAllUsers() {
-        return txRunner.runInTransaction(userService::getAllUsers, TxMode.READ_ONLY);
+        return txRunner.runInTransaction(userService::getAllUsers, TxMode.READ_ONLY, null);
     }
 
     @GetMapping("/search")
     public List<UserDto> searchUsers(
             @RequestParam String firstNamePrefix,
             @RequestParam String lastNamePrefix) {
-        return txRunner.runInTransaction(() -> userService.search(firstNamePrefix, lastNamePrefix), TxMode.READ_ONLY);
+        return txRunner.runInTransaction(() -> userService.search(firstNamePrefix, lastNamePrefix), TxMode.READ_ONLY, null);
     }
 }

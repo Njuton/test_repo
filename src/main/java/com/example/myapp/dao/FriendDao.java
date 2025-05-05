@@ -19,11 +19,13 @@ public class FriendDao {
     public void addFriend(UUID userId, UUID friendId) {
         String sql = "INSERT INTO user_friends (user_id, friend_id) VALUES (?, ?)";
         jdbcTemplate.update(sql, userId, friendId);
+        jdbcTemplate.update(sql, friendId, userId);
     }
 
     public void removeFriend(UUID userId, UUID friendId) {
-        String sql = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
-        jdbcTemplate.update(sql, userId, friendId);
+        String sql1 = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
+        jdbcTemplate.update(sql1, userId, friendId);
+        jdbcTemplate.update(sql1, friendId, userId);
     }
 
     public boolean isFriend(UUID userId, UUID friendId) {

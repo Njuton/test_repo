@@ -38,7 +38,7 @@ public class PostController implements PostApi {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UUID> createPost(Principal principal, String text) {
         UUID userId = UUID.fromString(principal.getName());
-        Post post = txRunner.runInTransaction(() -> postService.createPost(userId, text), TxMode.CURRENT_OR_NEW);
+        Post post = txRunner.runInTransaction(() -> postService.createPost(userId, text), TxMode.CURRENT_OR_NEW, null);
         return ResponseEntity.ok(post.getId());
     }
 
@@ -47,7 +47,7 @@ public class PostController implements PostApi {
     public ResponseEntity<Void> updatePost(UUID postId, String text) {
         txRunner.runInTransaction(() -> {
             postService.updatePost(postId, text);
-        }, TxMode.CURRENT_OR_NEW);
+        }, TxMode.CURRENT_OR_NEW, null);
         return ResponseEntity.ok().build();
     }
 
@@ -57,14 +57,14 @@ public class PostController implements PostApi {
         txRunner.runInTransaction(() -> {
             postService.deletePost(id);
             return null;
-        }, TxMode.CURRENT_OR_NEW);
+        }, TxMode.CURRENT_OR_NEW, null);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/get/{id}")
     @Override
     public ResponseEntity<PostDto> getPost(UUID id) {
-        Post post = txRunner.runInTransaction(() -> postService.getPostById(id), TxMode.READ_ONLY);
+        Post post = txRunner.runInTransaction(() -> postService.getPostById(id), TxMode.READ_ONLY, null);
         return ResponseEntity.ok(new PostDto(post.getId(), post.getUser().getId(), post.getText(), post.getCreatedAt()));
     }
 
@@ -74,8 +74,8 @@ public class PostController implements PostApi {
     public ResponseEntity<List<PostDto>> getFriendsFeed(Principal principal, int offset, int limit) {
         UUID userId = UUID.fromString(principal.getName());
         List<UUID> friendIds = txRunner.runInTransaction(() ->
-                userService.getFriends(userId).stream().map(UserDto::id).toList(), TxMode.READ_ONLY);
-        List<UUID> postIds = txRunner.runInTransaction(() -> postDao.getFriendsPostsIds(friendIds, offset, limit), TxMode.READ_ONLY);
+                userService.getFriends(userId).stream().map(UserDto::id).toList(), TxMode.READ_ONLY, null);
+        List<UUID> postIds = txRunner.runInTransaction(() -> postDao.getFriendsPostsIds(friendIds, offset, limit), TxMode.READ_ONLY, null);
         List<PostDto> posts = postIds.stream().map(postService::getPostById)
                 .map(post -> new PostDto(
                         post.getId(),

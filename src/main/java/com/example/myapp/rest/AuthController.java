@@ -29,6 +29,6 @@ public class AuthController implements AuthApi {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(new LoginResponse(txRunner.runInTransaction(() ->
-                authService.login(loginRequest), TxMode.READ_ONLY)));
+                authService.login(loginRequest), TxMode.READ_ONLY, null)));
     }
 }

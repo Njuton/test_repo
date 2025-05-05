@@ -22,6 +22,13 @@ spring:
       password: ${SPRING_DATASOURCE_PASSWORD:postgres}
       driver-class-name: org.postgresql.Driver
 
+    # необязательный датасорс (если указан - на нём будут выполняться запросы на работу с диалогами)
+    sharding:
+      url: ${SPRING_SHARDING_DATASOURCE_URL:jdbc:postgresql://localhost:6532/postgres}
+      username: ${SPRING_SHARDING_DATASOURCE_USERNAME:postgres}
+      password: ${SPRING_SHARDING_DATASOURCE_PASSWORD:postgres}
+      driver-class-name: org.postgresql.Driver
+
   # использует дефолтный датасорс
   flyway:
     enabled: true
@@ -30,7 +37,7 @@ spring:
   jpa:
     show_sql: true
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -51,6 +58,7 @@ logging:
     org.hibernate.SQL: DEBUG
     org.springframework.jdbc.core.JdbcTemplate: DEBUG
 
+# включаем актуатор с метриками на URL /actuator
 management:
   endpoints:
     web:

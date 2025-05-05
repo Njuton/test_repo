@@ -29,7 +29,7 @@ public class FriendController implements FriendApi {
     @PutMapping("/set/{user_id}")
     public ResponseEntity<String> addFriend(Principal principal, @PathVariable("user_id") UUID friendId) {
         UUID userId = UUID.fromString(principal.getName());
-        txRunner.runInTransaction(() -> userService.addFriend(userId, friendId), TxMode.CURRENT_OR_NEW);
+        txRunner.runInTransaction(() -> userService.addFriend(userId, friendId), TxMode.CURRENT_OR_NEW, null);
         return ResponseEntity.ok().build();
     }
 
@@ -38,7 +38,7 @@ public class FriendController implements FriendApi {
     @PutMapping("/delete/{user_id}")
     public ResponseEntity<String> removeFriend(Principal principal, @PathVariable("user_id") UUID friendId) {
         UUID userId = UUID.fromString(principal.getName());
-        txRunner.runInTransaction(() -> userService.removeFriend(userId, friendId), TxMode.CURRENT_OR_NEW);
+        txRunner.runInTransaction(() -> userService.removeFriend(userId, friendId), TxMode.CURRENT_OR_NEW, null);
         return ResponseEntity.ok().build();
     }
 
@@ -47,6 +47,6 @@ public class FriendController implements FriendApi {
     @GetMapping("/get-all")
     public List<UserDto> list(Principal principal) {
         UUID userId = UUID.fromString(principal.getName());
-        return txRunner.runInTransaction(() -> userService.getFriends(userId), TxMode.READ_ONLY);
+        return txRunner.runInTransaction(() -> userService.getFriends(userId), TxMode.READ_ONLY, null);
     }
 }

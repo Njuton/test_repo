@@ -21,6 +21,6 @@ public class TransactionContextHolder {
     }
 
     public enum TransactionType {
-        READ_ONLY, READ_WRITE
+        READ_ONLY, READ_WRITE, SHARDING
     }
 }

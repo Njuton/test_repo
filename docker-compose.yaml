@@ -11,6 +11,16 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
 
+      # Датасорс на запросы чтения при работе с постами
+      SPRING__READ_ONLY_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING__READ_ONLY_DATASOURCE_USERNAME: postgres
+      SPRING__READ_ONLY_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы для работы с диалогами
+      SPRING_SHARDING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_SHARDING_DATASOURCE_USERNAME: postgres
+      SPRING_SHARDING_DATASOURCE_PASSWORD: postgres
+
     depends_on:
       postgres:
         condition: service_healthy
