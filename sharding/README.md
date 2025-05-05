@@ -127,7 +127,8 @@ SELECT rebalance_table_shards('messages');
 ```
 
 - Проверяем, что на шарды распределены по всем воркерам:
-
+```SQL
+select count(*), nodename from citus_shards group by nodename;
      node_name     | node_port 
 -------------------+-----------
 sharding-worker-6 |      5432
@@ -136,3 +137,4 @@ sharding-worker-5 |      5432
 sharding-worker-4 |      5432
 sharding-worker-3 |      5432
 sharding-worker-1 |      5432
+```
