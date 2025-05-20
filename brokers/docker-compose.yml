@@ -1,0 +1,65 @@
+version: '3'
+services:
+  app:
+    build:
+      context: ../
+    container_name: application
+    ports:
+      - "${APP_PORT:-8888}:8888"
+    environment:
+      # Дефлолтный read-write датасорс
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы чтения при работе с постами
+      SPRING_READ_ONLY_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_READ_ONLY_DATASOURCE_USERNAME: postgres
+      SPRING_READ_ONLY_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы для работы с диалогами
+      SPRING_SHARDING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_SHARDING_DATASOURCE_USERNAME: postgres
+      SPRING_SHARDING_DATASOURCE_PASSWORD: postgres
+
+      RABBITMQ_HOST: rabbitmq
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    volumes:
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    ports:
+      - "${POSTGRES_PORT:-5440}:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    user: rabbitmq
+    image: rabbitmq:4.1.0
+    container_name: rabbitmq
+    ports:
+      - "${RABBIT_PORT:-5672}:5672"  # порт для работы с RabbitMQ
+      - "${RABBIT_UI_PORT:-15672}:15672"  # порт для доступа к веб-интерфейсу
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 1s
+      timeout: 5s
+      retries: 5

@@ -1,5 +1,6 @@
 package com.example.myapp.rest;
 
+import com.example.myapp.config.RabbitMQConfig;
 import com.example.myapp.dao.PostDao;
 import com.example.myapp.dao.entity.Post;
 import com.example.myapp.service.PostService;
@@ -8,6 +9,7 @@ import com.example.myapp.service.dto.PostDto;
 import com.example.myapp.service.dto.UserDto;
 import com.example.myapp.utils.tx.TransactionRunner;
 import com.example.myapp.utils.tx.TxMode;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,13 +26,15 @@ public class PostController implements PostApi {
     private final UserService userService;
     private final TransactionRunner txRunner;
     private final PostDao postDao;
+    private final RabbitTemplate rabbitTemplate;
 
     public PostController(PostService postService, UserService userService, TransactionRunner txRunner,
-                          PostDao postDao) {
+                          PostDao postDao, RabbitTemplate rabbitTemplate) {
         this.postService = postService;
         this.userService = userService;
         this.txRunner = txRunner;
         this.postDao = postDao;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @PostMapping("/create")
@@ -39,8 +43,19 @@ public class PostController implements PostApi {
     public ResponseEntity<UUID> createPost(Principal principal, String text) {
         UUID userId = UUID.fromString(principal.getName());
         Post post = txRunner.runInTransaction(() -> postService.createPost(userId, text), TxMode.CURRENT_OR_NEW, null);
+        PostDto dto = new PostDto(post.getId(), post.getUser().getId(), post.getText(), post.getCreatedAt());
+        // Отправка сообщения в RabbitMQ
+        String routingKey = determineRoutingKeyForUser(userId.toString());
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, routingKey, dto);
         return ResponseEntity.ok(post.getId());
     }
+
+    // раскидываем сообщение по 3 очередям в зависимости от хэш-кода отправителя
+    private String determineRoutingKeyForUser(String userId) {
+        int groupNumber = (userId.hashCode() % 3) + 1;
+        return "post.created.group" + groupNumber;
+    }
+
 
     @PutMapping("/update")
     @Override

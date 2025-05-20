@@ -1,0 +1,57 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f4f4f9;
+    margin: 0;
+}
+h1 {
+    color: #333;
+}
+#tokenInput, #messageInput {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+#connect, #clearOutput, #disconnect {
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 10px;
+}
+#connect:hover, #send:hover, #clearOutput:hover, #disconnect:hover {
+    background-color: #0056b3;
+}
+#output {
+    width: 100%;
+    max-width: 400px;
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    max-height: 300px;
+    overflow-y: auto;
+    height: 300px; /* Fixed height */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+#connectionButtons {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    margin-bottom: 10px;
+}

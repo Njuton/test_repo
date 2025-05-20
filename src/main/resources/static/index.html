@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<h1>Отправка постов по WebSocket</h1>
+
+<!-- Поле для ввода токена -->
+<input type="text" id="tokenInput" placeholder="Введите токен пользователя" />
+
+<!-- Контейнер для кнопок подключения и отключения -->
+<div id="connectionButtons">
+    <!-- Кнопка подключения -->
+    <button id="connect">Connect</button>
+    <!-- Кнопка отключения -->
+    <button id="disconnect">Disconnect</button>
+</div>
+
+<p>Лог результата ws:</p>
+
+<!-- Вывод сообщений -->
+<div id="output"></div>
+
+<!-- Кнопка очистки -->
+<button id="clearOutput">Clear</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

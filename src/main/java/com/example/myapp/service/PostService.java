@@ -17,9 +17,9 @@ public class PostService {
     private final PostDao postDao;
 
     public PostService(PostDao postDao) {
+
         this.postDao = postDao;
     }
-
 
     public Post createPost(UUID userId, String text) {
         Post post = new Post();

@@ -2,6 +2,7 @@ package com.example.myapp.service.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -22,5 +23,5 @@ public record PostDto(
 
         @Schema
         LocalDateTime createdAt
-) {
+) implements Serializable {
 }

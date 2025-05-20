@@ -29,6 +29,13 @@ spring:
       password: ${SPRING_SHARDING_DATASOURCE_PASSWORD:postgres}
       driver-class-name: org.postgresql.Driver
 
+  # брокер сообщений
+  rabbitmq:
+    host:  ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: user
+    password: password
+
   # использует дефолтный датасорс
   flyway:
     enabled: true
@@ -56,6 +63,8 @@ logging:
     root: INFO
     org.springframework: WARN
     org.hibernate.SQL: DEBUG
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging: DEBUG
     org.springframework.jdbc.core.JdbcTemplate: DEBUG
 
 # включаем актуатор с метриками на URL /actuator
