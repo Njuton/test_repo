@@ -40,7 +40,7 @@ docker compose -f docker-compose.yml up
 
 `eyJhbGciOiJIUzUxMiJ9.eyJ1c2VySWQiOiJjYWU2ZWNkOS0wMjc4LTRmN2EtYTMwZS04Zjk4MDJlZmIxYzYiLCJzdWIiOiJjYWU2ZWNkOS0wMjc4LTRmN2EtYTMwZS04Zjk4MDJlZmIxYzYiLCJpYXQiOjE3NDc3NzM4MTksImV4cCI6MTc0ODM3ODYxOX0.amJwft6kHhXGb1SpR_6zPdi8lreVPVProLovd141T7aZfJwi-Wu5yaRnLfgq2FeWkpUFwsA0FOzFgmRY6EQRpQ`
 
-Для alice_smith получаем токен доступа, зайдя на http://localhost:8888/swagger-ui.html и выполнив метод POST /login (пароль password123).
+Для  charlie_williams получаем токен доступа, зайдя на http://localhost:8888/swagger-ui.html и выполнив метод POST /login (пароль password123).
 Это
 
 `eyJhbGciOiJIUzUxMiJ9.eyJ1c2VySWQiOiJjMmE4OTE1MS0wNzQxLTRiM2UtYjUzOC0wZGMxMjVhZTlkNjMiLCJzdWIiOiJjMmE4OTE1MS0wNzQxLTRiM2UtYjUzOC0wZGMxMjVhZTlkNjMiLCJpYXQiOjE3NDc3NzM5OTksImV4cCI6MTc0ODM3ODc5OX0.0B69lPk5CtNWmOoyY00j7LAFcoChBhvAM6gLTCV-JnKuBoQFoshuOyeOvS3CsVJ6G12q0f0QFHl8PUFO-ombtw`
