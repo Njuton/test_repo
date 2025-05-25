@@ -1,6 +1,11 @@
 package com.example.myapp.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,8 +14,36 @@ import org.springframework.context.annotation.Configuration;
  * @since 19.05.2025
  */
 @Configuration
+@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
 public class RabbitMQConfig {
     public static final String EXCHANGE_NAME = "directExchange";
+    private final String host;
+    private final String username;
+    private final String password;
+    private final int port;
+
+    public RabbitMQConfig(@Value("${rabbitmq.host}") String host, @Value("${rabbitmq.port}") int port,
+                          @Value("${rabbitmq.username}") String username, @Value("${rabbitmq.password}") String password) {
+        this.host = host;
+        this.username = host;
+        this.password = host;
+        this.port = port;
+    }
+
+    @Bean
+    public ConnectionFactory connectionFactory() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+        connectionFactory.setHost(host);
+        connectionFactory.setPort(port);
+        connectionFactory.setUsername(username);
+        connectionFactory.setPassword(password);
+        return connectionFactory;
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        return new RabbitTemplate(connectionFactory);
+    }
 
     @Bean
     public DirectExchange exchange() {

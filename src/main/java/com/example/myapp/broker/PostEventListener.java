@@ -5,6 +5,7 @@ import com.example.myapp.ws.WebSocketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 /**
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
  * @since 19.05.2025
  */
 @Component
+@ConditionalOnProperty(name = "rabbitmq.enabled", havingValue = "true")
 public class PostEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(PostEventListener.class);

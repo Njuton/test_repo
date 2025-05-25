@@ -31,10 +31,11 @@ spring:
 
   # брокер сообщений
   rabbitmq:
-    host:  ${RABBITMQ_HOST:localhost}
+    host: ${RABBITMQ_HOST:localhost}
     port: 5672
     username: user
     password: password
+    enabled: ${RABBITMQ_ENABLED:false}
 
   # использует дефолтный датасорс
   flyway:
@@ -58,14 +59,19 @@ springdoc:
     # доступ к swagger
     path: /swagger-ui.html
 
+redis:
+  port: ${REDIS_PORT:6379}
+  host: ${REDIS_HOST:localhost}
+  enabled: ${REDIS_ENABLED:false}
+
 logging:
   level:
     root: INFO
     org.springframework: WARN
-    org.hibernate.SQL: DEBUG
-    org.springframework.web.socket: DEBUG
-    org.springframework.messaging: DEBUG
-    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+    # org.hibernate.SQL: DEBUG
+    # org.springframework.web.socket: DEBUG
+    # org.springframework.messaging: DEBUG
+    # org.springframework.jdbc.core.JdbcTemplate: DEBUG
 
 # включаем актуатор с метриками на URL /actuator
 management:

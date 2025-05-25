@@ -1,0 +1,73 @@
+version: '3.1'
+
+services:
+  redis:
+    image: "redis:latest"
+    container_name: "redis"
+    ports:
+      - "6379:6379"
+    command: [ "redis-server", "--appendonly", "yes" ]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight-data:/db
+
+  postgres:
+    image: postgres:17
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    ports:
+      - "${POSTGRES_PORT:-5440}:5432"
+    volumes:
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ../
+    ports:
+      - "${APP_PORT:-8888}:8888"
+    environment:
+      # Дефлолтный read-write датасорс
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы чтения при работе с постами
+      SPRING_READ_ONLY_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_READ_ONLY_DATASOURCE_USERNAME: postgres
+      SPRING_READ_ONLY_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы для работы с диалогами
+      SPRING_SHARDING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_SHARDING_DATASOURCE_USERNAME: postgres
+      SPRING_SHARDING_DATASOURCE_PASSWORD: postgres
+
+      REDIS_ENABLED: true
+      REDIS_HOST: redis
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  redisinsight-data:
