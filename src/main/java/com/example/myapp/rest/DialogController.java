@@ -1,15 +1,17 @@
 package com.example.myapp.rest;
 
-import com.example.myapp.config.TransactionContextHolder;
-import com.example.myapp.service.DialogService;
 import com.example.myapp.dao.entity.Message;
-import com.example.myapp.utils.tx.TransactionRunner;
-import com.example.myapp.utils.tx.TxMode;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,29 +23,38 @@ import java.util.UUID;
 @RequestMapping("/dialog")
 public class DialogController implements DialogApi {
 
-    private final DialogService dialogService;
-    private final TransactionRunner txRunner;
+    private final RestTemplate restTemplate;
+    private final String dialogServiceBaseUrl;
 
-    public DialogController(DialogService dialogService, TransactionRunner txRunner) {
-        this.dialogService = dialogService;
-        this.txRunner = txRunner;
+    public DialogController(RestTemplate restTemplate,
+                            @Value("${dialog-service.base-url}") String dialogServiceBaseUrl) {
+        this.restTemplate = restTemplate;
+        this.dialogServiceBaseUrl = dialogServiceBaseUrl;
     }
 
     @PostMapping("/{user_id}/send")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> sendMessage(Principal principal, @PathVariable("user_id") UUID receiverId, @RequestBody String text) {
         UUID senderId = UUID.fromString(principal.getName());
-        txRunner.runInTransaction(() -> dialogService.sendMessage(senderId, receiverId, text), TxMode.CURRENT_OR_NEW,
-                TransactionContextHolder.TransactionType.SHARDING);
-        return ResponseEntity.ok().build();
+        String url = dialogServiceBaseUrl + "/dialog/from/" + senderId + "/to/" + receiverId + "/send";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request = new HttpEntity<>(text, headers);
+        ResponseEntity<Void> response = restTemplate.postForEntity(url, request, Void.class);
+        return ResponseEntity.status(response.getStatusCode()).build();
     }
 
     @GetMapping("/{user_id}/list")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Message>> getDialog(Principal principal, @PathVariable("user_id") UUID friendId) {
         UUID userId = UUID.fromString(principal.getName());
-        List<Message> dialog = txRunner.runInTransaction(() -> dialogService.getDialog(userId, friendId), TxMode.READ_ONLY,
-                TransactionContextHolder.TransactionType.SHARDING);
-        return ResponseEntity.ok(dialog);
+        String url = dialogServiceBaseUrl + "/dialog/" + userId + "/" + friendId + "/list";
+        ResponseEntity<Message[]> response = restTemplate.getForEntity(url, Message[].class);
+        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+            List<Message> dialog = Arrays.asList(response.getBody());
+            return ResponseEntity.ok(dialog);
+        } else {
+            return ResponseEntity.status(response.getStatusCode()).build();
+        }
     }
 }

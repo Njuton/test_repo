@@ -1,6 +1,9 @@
 server:
   port: ${SERVER_PORT:8888}
 
+dialog-service:
+  base-url: ${DIALOG_SERVICE_URL:http://localhost:8889}
+
 spring:
   datasource:
     # массив датасорсов необязателен (если указан, то на нём выполняются только read-only транзакции)
@@ -20,13 +23,6 @@ spring:
       url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:6530/mydatabase}
       username: ${SPRING_DATASOURCE_USERNAME:postgres}
       password: ${SPRING_DATASOURCE_PASSWORD:postgres}
-      driver-class-name: org.postgresql.Driver
-
-    # необязательный датасорс (если указан - на нём будут выполняться запросы на работу с диалогами)
-    sharding:
-      url: ${SPRING_SHARDING_DATASOURCE_URL:jdbc:postgresql://localhost:6532/postgres}
-      username: ${SPRING_SHARDING_DATASOURCE_USERNAME:postgres}
-      password: ${SPRING_SHARDING_DATASOURCE_PASSWORD:postgres}
       driver-class-name: org.postgresql.Driver
 
   # брокер сообщений

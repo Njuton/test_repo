@@ -1,6 +1,5 @@
 package com.example.myapp.config;
 
-import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -11,14 +10,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
-import javax.inject.Named;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author rmartynov
@@ -50,12 +47,6 @@ public class DataSourceConfig {
     }
 
     @Bean
-    @ConfigurationProperties("spring.datasource.sharding")
-    public DataSourceProperties shardingDataSourceProperties() {
-        return new DataSourceProperties();
-    }
-
-    @Bean
     public List<DataSource> readOnlyDataSources(ReadOnlyProperties properties) {
         List<DataSource> dataSources = new ArrayList<>();
         for (ReadOnlyProperties.ReadOnlyDataSourceProperty property : properties.getReadOnly()) {
@@ -73,18 +64,9 @@ public class DataSourceConfig {
         return readWriteDataSourceProperties().initializeDataSourceBuilder().build();
     }
 
-    @Nullable
-    private DataSource getShardingDataSource() {
-        DataSourceProperties sharding = shardingDataSourceProperties();
-        if (sharding.getUrl() != null) {
-            return shardingDataSourceProperties().initializeDataSourceBuilder().build();
-        }
-        return null;
-    }
-
     @Bean
     public DataSource routingDataSource(List<DataSource> readOnlyDataSources) throws SQLException {
-        AbstractRoutingDataSource dataSource = new TransactionRoutingDataSource(readOnlyKeyRegistry, registryInfo);
+        AbstractRoutingDataSource dataSource = new TransactionRoutingDataSource(readOnlyKeyRegistry);
         Map<Object, Object> targetDataSources = new HashMap<>();
 
         DataSource readWriteDataSource = getReadWriteDataSource();
@@ -103,13 +85,6 @@ public class DataSourceConfig {
 
         logger.info("Use write datasource: {}", readWriteDataSource.getConnection().getMetaData().getURL());
         targetDataSources.put(TransactionContextHolder.TransactionType.READ_WRITE, readWriteDataSource);
-
-        DataSource shardingDataSource = getShardingDataSource();
-        if (shardingDataSource != null) {
-            targetDataSources.put(TransactionContextHolder.TransactionType.SHARDING, shardingDataSource);
-            this.registryInfo.getShardingDSEnabled().set(true);
-            logger.info("Use sharding datasource: {}", shardingDataSource.getConnection().getMetaData().getURL());
-        }
 
         dataSource.setTargetDataSources(targetDataSources);
         dataSource.setDefaultTargetDataSource(readWriteDataSource);

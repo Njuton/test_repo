@@ -1,0 +1,59 @@
+version: '3'
+services:
+  postgres-microservice:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+  postgres-main:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+
+
+  microservice:
+    build:
+      context: .
+    ports:
+      - "8889:8889"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-microservice:5432/mydatabase
+    depends_on:
+      postgres-microservice:
+        condition: service_healthy
+
+
+  app:
+    build:
+      context: ../
+    ports:
+      - "8888:8888"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-main:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      SPRING_READ_ONLY_DATASOURCE_URL: jdbc:postgresql://postgres-main:5432/mydatabase
+      SPRING_READ_ONLY_DATASOURCE_USERNAME: postgres
+      SPRING_READ_ONLY_DATASOURCE_PASSWORD: postgres
+      DIALOG_SERVICE_URL: http://microservice:8889
+
+    depends_on:
+      postgres-main:
+        condition: service_healthy

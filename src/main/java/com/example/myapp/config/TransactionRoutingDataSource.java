@@ -13,11 +13,9 @@ import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 public class TransactionRoutingDataSource extends AbstractRoutingDataSource {
     private static final Logger logger = LoggerFactory.getLogger(TransactionRoutingDataSource.class);
     private final ReadOnlyKeyRegistry readOnlyKeyRegistry;
-    private final DataSourceRegistryInfo registryInfo;
 
-    public TransactionRoutingDataSource(ReadOnlyKeyRegistry readOnlyKeyRegistry, DataSourceRegistryInfo registryInfo) {
+    public TransactionRoutingDataSource(ReadOnlyKeyRegistry readOnlyKeyRegistry) {
         this.readOnlyKeyRegistry = readOnlyKeyRegistry;
-        this.registryInfo = registryInfo;
     }
 
     //метод возвращает ключ, под которым находится конкретный датасорс
@@ -29,12 +27,6 @@ public class TransactionRoutingDataSource extends AbstractRoutingDataSource {
             String key = readOnlyKeyRegistry.getRandomKey();
             logger.info("Use key={} for transaction", key);
             return key;
-        }
-
-        //  если пришел шардинг - отправляет на DS шардинга, если он есть
-        if (transactionType == TransactionContextHolder.TransactionType.SHARDING && registryInfo.getShardingDSEnabled().get()) {
-            logger.info("Use sharding DS for transaction");
-            return TransactionContextHolder.TransactionType.SHARDING;
         }
 
         logger.info("Use read-write DS for transaction");
