@@ -1,0 +1,126 @@
+version: '3'
+services:
+  pg-slave1:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    volumes:
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+    networks: [ pgnet ]
+
+  pg-slave2:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
+    volumes:
+      - ./backup.sql:/docker-entrypoint-initdb.d/backup.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 1s
+      timeout: 5s
+      retries: 5
+    networks: [ pgnet ]
+
+  app1:
+    build:
+      context: ../
+    environment:
+      # Дефлолтный read-write датасорс
+      SPRING_DATASOURCE_URL: jdbc:postgresql://haproxy:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы чтения при работе с постами
+      SPRING_READ_ONLY_DATASOURCE_URL: jdbc:postgresql://haproxy:5432/mydatabase
+      SPRING_READ_ONLY_DATASOURCE_USERNAME: postgres
+      SPRING_READ_ONLY_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы для работы с диалогами
+      SPRING_SHARDING_DATASOURCE_URL: jdbc:postgresql://haproxy:5432/postgres
+      SPRING_SHARDING_DATASOURCE_USERNAME: postgres
+      SPRING_SHARDING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - pg-slave1
+      - pg-slave2
+      - haproxy
+    networks: [ pgnet ]
+
+  app2:
+    build:
+      context: ../
+    environment:
+      # Дефлолтный read-write датасорс
+      SPRING_DATASOURCE_URL: jdbc:postgresql://haproxy:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы чтения при работе с постами
+      SPRING_READ_ONLY_DATASOURCE_URL: jdbc:postgresql://haproxy:5432/mydatabase
+      SPRING_READ_ONLY_DATASOURCE_USERNAME: postgres
+      SPRING_READ_ONLY_DATASOURCE_PASSWORD: postgres
+
+      # Датасорс на запросы для работы с диалогами
+      SPRING_SHARDING_DATASOURCE_URL: jdbc:postgresql://haproxy:5432/postgres
+      SPRING_SHARDING_DATASOURCE_USERNAME: postgres
+      SPRING_SHARDING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8889
+
+    depends_on:
+      - pg-slave1
+      - pg-slave2
+      - haproxy
+    networks: [ pgnet ]
+
+    #postgres:
+    #image: postgres:17
+    #container_name: postgres_container
+    #restart: always
+    #environment:
+    #  POSTGRES_USER: postgres
+    #  POSTGRES_PASSWORD: postgres
+    #  POSTGRES_DB: mydatabase
+    #ports:
+    #  - "${POSTGRES_PORT:-5440}:5432"
+    #healthcheck:
+    #  test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+    #  interval: 1s
+    #  timeout: 5s
+    #  retries: 5
+    #networks: [ pgnet ]
+
+  haproxy:
+    image: haproxy:2.8
+    container_name: haproxy
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - pg-slave1
+      - pg-slave2
+    networks: [ pgnet ]
+
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - app1
+      - app2
+    networks: [ pgnet ]
+
+networks:
+  pgnet:
