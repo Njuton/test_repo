@@ -16,6 +16,9 @@ public class Message {
     @Column(name = "id", nullable = false)
     private UUID id;
 
+    @Column
+    private boolean read;
+
     @Id
     @Column(name = "sender_id", nullable = false)
     private UUID senderId;
@@ -67,5 +70,13 @@ public class Message {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public boolean isRead() {
+        return read;
+    }
+
+    public void setRead(boolean read) {
+        this.read = read;
     }
 }

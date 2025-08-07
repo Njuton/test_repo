@@ -39,4 +39,16 @@ public class DialogService {
     public int deleteMessageById(UUID messageId) {
        return messageDao.deleteMessage(messageId);
     }
+
+    public void markMessagesAsRead(List<UUID> messageIds) {
+        for (UUID messageId : messageIds) {
+            messageDao.updateMessageReadStatus(messageId, true);
+        }
+    }
+
+    public void markMessagesAsUnread(List<UUID> messageIds) {
+        for (UUID messageId : messageIds) {
+            messageDao.updateMessageReadStatus(messageId, false);
+        }
+    }
 }

@@ -24,13 +24,15 @@ public class MessageDao {
     }
 
     public void saveMessage(Message message) {
-        String sql = "INSERT INTO messages (id, sender_id, receiver_id, text, created_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO messages (id, sender_id, receiver_id, text, created_at, read) VALUES (?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
                 message.getId(),
                 message.getSenderId(),
                 message.getReceiverId(),
                 message.getText(),
-                message.getCreatedAt());
+                message.getCreatedAt(),
+                // делаем сообщение непрочитанным
+                false);
     }
 
     public List<Message> getDialog(UUID userId, UUID friendId) {
@@ -38,6 +40,11 @@ public class MessageDao {
                 "WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?) " +
                 "ORDER BY created_at ASC";
         return jdbcTemplate.query(sql, new MessageRowMapper(), userId, friendId, friendId, userId);
+    }
+
+    public void updateMessageReadStatus(UUID messageId, boolean read) {
+        String sql = "UPDATE messages SET read = ? WHERE id = ?";
+        jdbcTemplate.update(sql, read, messageId);
     }
 
     public int deleteMessage(UUID messageId) {
@@ -49,6 +56,7 @@ public class MessageDao {
         @Override
         public Message mapRow(ResultSet rs, int rowNum) throws SQLException {
             Message message = new Message();
+            message.setRead(rs.getBoolean("read"));
             message.setId(UUID.fromString(rs.getString("id")));
             message.setSenderId(UUID.fromString(rs.getString("sender_id")));
             message.setReceiverId(UUID.fromString(rs.getString("receiver_id")));

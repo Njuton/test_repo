@@ -14,6 +14,7 @@ import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author rmartynov
@@ -69,11 +70,18 @@ public class DialogController implements DialogApi {
         ResponseEntity<Message[]> response = restTemplate.getForEntity(url, Message[].class);
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             List<Message> dialog = Arrays.asList(response.getBody());
+            List<UUID> unreadMessageIds = dialog.stream()
+                    .filter(x -> !x.isRead())
+                    .map(Message::getId)
+                    .collect(Collectors.toList());
+            // Делаем сообщения прочитанными
+            restTemplate.postForEntity(dialogServiceBaseUrl + "/dialog/mark-as-read", unreadMessageIds, Void.class);
             // Попытка уменьшить счетчик непрочитанных сообщений
             try {
-                restTemplate.postForEntity(dialogServiceBaseUrl + "/counters/decrement/" + userId, null, Void.class);
+                restTemplate.postForEntity(dialogServiceBaseUrl + "/counters/decrement/" + userId + "/" + unreadMessageIds.size(), null, Void.class);
             } catch (Exception e) {
-                // Не компенсируем, т.к. не критично для состояния сообщений
+                // SAGA делаем компенсирующую операцию, делая эти же сообщения непрочитанными
+                restTemplate.postForEntity(dialogServiceBaseUrl + "/dialog/mark-as-unread", unreadMessageIds, Void.class);
                 return ResponseEntity.status(500).body(null);
             }
             return ResponseEntity.ok(dialog);

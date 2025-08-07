@@ -22,7 +22,11 @@ public class CounterService {
         counterDao.incrementCounter(userId);
     }
 
-    public void decrementCounter(UUID userId) {
-        counterDao.decrementCounter(userId);
+    public void decrementCounter(UUID userId, int count) {
+        counterDao.decrementCounter(userId, count);
+    }
+
+    public int getCounter(UUID userId) {
+        return counterDao.getCounter(userId);
     }
 }

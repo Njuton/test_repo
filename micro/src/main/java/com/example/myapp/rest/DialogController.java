@@ -48,4 +48,16 @@ public class DialogController implements DialogApi {
             return ResponseEntity.status(404).body(null); // Возвращаем 404, если сообщение не найдено
         }
     }
+
+    @PostMapping("/mark-as-read")
+    public ResponseEntity<Void> markAsRead(@RequestBody List<UUID> messageIds) {
+        txRunner.runInTransaction(() -> dialogService.markMessagesAsRead(messageIds), TxMode.CURRENT_OR_NEW);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/mark-as-unread")
+    public ResponseEntity<Void> markAsUnread(@RequestBody List<UUID> messageIds) {
+        txRunner.runInTransaction(() -> dialogService.markMessagesAsUnread(messageIds), TxMode.CURRENT_OR_NEW);
+        return ResponseEntity.ok().build();
+    }
 }

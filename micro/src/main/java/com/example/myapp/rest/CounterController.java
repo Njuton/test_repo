@@ -1,11 +1,10 @@
 package com.example.myapp.rest;
 
 import com.example.myapp.service.CounterService;
+import com.example.myapp.utils.tx.TransactionRunner;
+import com.example.myapp.utils.tx.TxMode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -18,20 +17,28 @@ import java.util.UUID;
 public class CounterController {
 
     private final CounterService counterService;
+    private final TransactionRunner txRunner;
 
-    public CounterController(CounterService counterService) {
+    public CounterController(CounterService counterService, TransactionRunner txRunner) {
         this.counterService = counterService;
+        this.txRunner = txRunner;
     }
 
     @PostMapping("/increment/{userId}")
     public ResponseEntity<Void> incrementCounter(@PathVariable UUID userId) {
-        counterService.incrementCounter(userId);
+        txRunner.runInTransaction(() -> counterService.incrementCounter(userId), TxMode.CURRENT_OR_NEW);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/decrement/{userId}")
-    public ResponseEntity<Void> decrementCounter(@PathVariable UUID userId) {
-        counterService.decrementCounter(userId);
+    @PostMapping("/decrement/{userId}/{count}")
+    public ResponseEntity<Void> decrementCounter(@PathVariable UUID userId, @PathVariable int count) {
+        txRunner.runInTransaction(() -> counterService.decrementCounter(userId, count), TxMode.CURRENT_OR_NEW);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/get/{userId}")
+    public ResponseEntity<Integer> getCounter(@PathVariable UUID userId) {
+        int counter = txRunner.runInTransaction(() -> counterService.getCounter(userId), TxMode.READ_ONLY);
+        return ResponseEntity.ok(counter);
     }
 }
