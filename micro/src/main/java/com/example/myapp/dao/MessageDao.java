@@ -40,6 +40,11 @@ public class MessageDao {
         return jdbcTemplate.query(sql, new MessageRowMapper(), userId, friendId, friendId, userId);
     }
 
+    public int deleteMessage(UUID messageId) {
+        String sql = "DELETE FROM messages WHERE id = ?";
+        return jdbcTemplate.update(sql, messageId);
+    }
+
     private static class MessageRowMapper implements RowMapper<Message> {
         @Override
         public Message mapRow(ResultSet rs, int rowNum) throws SQLException {

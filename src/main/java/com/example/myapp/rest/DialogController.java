@@ -40,8 +40,25 @@ public class DialogController implements DialogApi {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request = new HttpEntity<>(text, headers);
-        ResponseEntity<Void> response = restTemplate.postForEntity(url, request, Void.class);
-        return ResponseEntity.status(response.getStatusCode()).build();
+        try {
+            ResponseEntity<Message> msgResponse = restTemplate.postForEntity(url, request, Message.class);
+            if (msgResponse.getStatusCode().is2xxSuccessful() && msgResponse.getBody() != null) {
+                Message message = msgResponse.getBody();
+                try {
+                    // Увеличиваем счетчик непрочитанных сообщений
+                    restTemplate.postForEntity(dialogServiceBaseUrl + "/counters/increment/" + receiverId, null, Void.class);
+                    return ResponseEntity.ok().build();
+                } catch (Exception e) {
+                    // Компенсация: удаляем сообщение, если не удалось увеличить счетчик
+                    String deleteUrl = dialogServiceBaseUrl + "/dialog/message/" + message.getId();
+                    restTemplate.delete(deleteUrl);
+                    return ResponseEntity.status(500).body(null);
+                }
+            }
+            return ResponseEntity.status(msgResponse.getStatusCode()).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
     @GetMapping("/{user_id}/list")
@@ -52,6 +69,13 @@ public class DialogController implements DialogApi {
         ResponseEntity<Message[]> response = restTemplate.getForEntity(url, Message[].class);
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             List<Message> dialog = Arrays.asList(response.getBody());
+            // Попытка уменьшить счетчик непрочитанных сообщений
+            try {
+                restTemplate.postForEntity(dialogServiceBaseUrl + "/counters/decrement/" + userId, null, Void.class);
+            } catch (Exception e) {
+                // Не компенсируем, т.к. не критично для состояния сообщений
+                return ResponseEntity.status(500).body(null);
+            }
             return ResponseEntity.ok(dialog);
         } else {
             return ResponseEntity.status(response.getStatusCode()).build();

@@ -25,7 +25,7 @@ public interface DialogApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешно отправлено сообщение"),
     })
-    ResponseEntity<Void> sendMessage(@Parameter(description = "ID отправителя") @PathVariable("sender_id") UUID senderId,
+    ResponseEntity<Message> sendMessage(@Parameter(description = "ID отправителя") @PathVariable("sender_id") UUID senderId,
                                      @Parameter(description = "ID получателя") @PathVariable("receiver_id") UUID receiverId,
                                      @RequestBody String text
     );

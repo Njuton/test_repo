@@ -27,15 +27,25 @@ public class DialogController implements DialogApi {
     }
 
     @PostMapping("/from/{sender_id}/to/{receiver_id}/send")
-    public ResponseEntity<Void> sendMessage(@PathVariable("sender_id") UUID senderId,
-                                            @PathVariable("receiver_id") UUID receiverId, @RequestBody String text) {
-        txRunner.runInTransaction(() -> dialogService.sendMessage(senderId, receiverId, text), TxMode.CURRENT_OR_NEW);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Message> sendMessage(@PathVariable("sender_id") UUID senderId,
+                                               @PathVariable("receiver_id") UUID receiverId, @RequestBody String text) {
+        Message message = txRunner.runInTransaction(() -> dialogService.sendMessage(senderId, receiverId, text), TxMode.CURRENT_OR_NEW);
+        return ResponseEntity.ok(message);
     }
 
     @GetMapping("/{user_id}/{friend_id}/list")
     public ResponseEntity<List<Message>> getDialog(@PathVariable("user_id") UUID userId, @PathVariable("friend_id") UUID friendId) {
         List<Message> dialog = txRunner.runInTransaction(() -> dialogService.getDialog(userId, friendId), TxMode.READ_ONLY);
         return ResponseEntity.ok(dialog);
+    }
+
+    @DeleteMapping("/message/{message_id}")
+    public ResponseEntity<Void> deleteMessage(@PathVariable("message_id") UUID messageId) {
+        try {
+            dialogService.deleteMessageById(messageId);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(null); // Возвращаем 404, если сообщение не найдено
+        }
     }
 }

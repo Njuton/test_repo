@@ -21,7 +21,7 @@ public class DialogService {
         this.messageDao = messageDao;
     }
 
-    public void sendMessage(UUID senderId, UUID receiverId, String text) {
+    public Message sendMessage(UUID senderId, UUID receiverId, String text) {
         Message message = new Message();
         message.setId(UUID.randomUUID());
         message.setSenderId(senderId);
@@ -29,9 +29,14 @@ public class DialogService {
         message.setText(text);
         message.setCreatedAt(LocalDateTime.now());
         messageDao.saveMessage(message);
+        return message;
     }
 
     public List<Message> getDialog(UUID userId, UUID friendId) {
         return messageDao.getDialog(userId, friendId);
+    }
+
+    public int deleteMessageById(UUID messageId) {
+       return messageDao.deleteMessage(messageId);
     }
 }
